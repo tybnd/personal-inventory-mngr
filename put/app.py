@@ -16,7 +16,7 @@ def lambda_handler(event, context):
     return {
             "statusCode": 200,
             "body": json.dumps({
-                "message": nameid, "Count": numid
+                "message": "Update Successful", "Count": numid
                 # "location": ip.text.replace("\n", "")
             }),
         }
