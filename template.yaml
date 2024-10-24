@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  personal-inventory-mngr
+Description: personal-inventory-mngr
 
   Sample SAM Template for personal-inventory-mngr
 
@@ -20,7 +19,7 @@ Resources:
     Properties:
       CodeUri: get/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.11
       Architectures:
       - x86_64
       Events:
@@ -34,7 +33,7 @@ Resources:
     Properties:
       CodeUri: put/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime:  python3.11
       Architectures:
       - x86_64
       Events:
