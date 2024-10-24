@@ -43,6 +43,11 @@ Resources:
           Properties:
             Path: /put
             Method: put
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      Name: 'personal-inventory'
+      BillingMode: PAY_PER_REQUEST
   
 
 Outputs:
