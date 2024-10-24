@@ -24,7 +24,7 @@ Resources:
       Architectures:
       - x86_64
       Events:
-        HelloWorld:
+        GetInventory:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /get
@@ -38,7 +38,7 @@ Resources:
       Architectures:
       - x86_64
       Events:
-        HelloWorld:
+        PutInventory:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /put
@@ -48,6 +48,16 @@ Resources:
     Properties:
       Name: 'personal-inventory'
       BillingMode: PAY_PER_REQUEST
+      KeySchema:
+      - AttributeName: "ID"
+      KeyType: "HASH"
+      AttributeDefinitions:
+      - AttributeName: "ID"
+        AttributeType: "S"
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName: !Ref DynamoDBTable
+
   
 
 Outputs:
