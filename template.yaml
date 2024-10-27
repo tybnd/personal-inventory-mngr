@@ -10,6 +10,68 @@ Globals:
       LogFormat: JSON
 
 Resources:
+  ServerlessRestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: PersonalInventoryAPI
+      StageName: Prod
+      DefinitionBody:
+        swagger: "2.0"
+        info:
+          title: "Personal Inventory API"
+        paths:
+          /get:
+            get:
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFunction.Arn}/invocations"
+                httpMethod: GET
+                passthroughBehavior: WHEN_NO_MATCH
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Content-Type:
+                      type: string
+
+          /put:
+            put:
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutFunction.Arn}/invocations"
+                httpMethod: PUT
+                passthroughBehavior: WHEN_NO_MATCH
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Content-Type:
+                      type: string
+
+
+
   GetFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -18,14 +80,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Events:
-        GetInventory:
-          Type: Api
-          Properties:
-            Path: /get
-            Method: get
-            RestApiId: !Ref ServerlessRestApi  # Add this line to link to the API
-            Proxy: true
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDBTable
@@ -38,14 +92,6 @@ Resources:
       Runtime: python3.12
       Architectures:
         - x86_64
-      Events:
-        PutInventory:
-          Type: Api
-          Properties:
-            Path: /put
-            Method: put
-            RestApiId: !Ref ServerlessRestApi  # Add this line to link to the API
-            Proxy: true
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDBTable
@@ -62,15 +108,3 @@ Resources:
         - AttributeName: "ID"
           AttributeType: "S"
 
-Outputs:
-  GetInventoryApi:
-    Description: API Gateway endpoint URL for Prod stage for GetInventory function
-    Value: !Sub "https://j45kvnew6d.execute-api.us-east-1.amazonaws.com/Prod/get"
-
-  GetFunctionArn:
-    Description: Get Inventory Lambda Function ARN
-    Value: !GetAtt GetFunction.Arn
-
-  PutFunctionArn:
-    Description: Put Inventory Lambda Function ARN
-    Value: !GetAtt PutFunction.Arn

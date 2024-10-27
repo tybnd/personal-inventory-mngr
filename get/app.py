@@ -6,41 +6,27 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('personal-inventory')
 
 def lambda_handler(event, context):
-    print("Received event: ", json.dumps(event))  # Log the entire event
-
-    # Check if 'queryStringParameters' exists
-    query_params = event.get('queryStringParameters', {})
-    item_id = query_params.get('ID')  # Get ID from query string
-
-    if item_id is None:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "ID parameter is required"})
-        }
-
     try:
-        response = table.get_item(Key={'ID': item_id})
-        item = response.get('Item')
-
-        if item:
+        # Safely access query string parameter 'ID'
+        item_id = event.get('queryStringParameters', {}).get('ID')
+        if not item_id:
             return {
-                "statusCode": 200,
-                "body": json.dumps(item)
+                "statusCode": 400,
+                "body": json.dumps({"message": "ID parameter is required"})
             }
-        else:
-            return {
-                "statusCode": 404,
-                "body": json.dumps({"message": "Item not found"})
-            }
-
-    except ClientError as e:
-        print(e.response['Error']['Message'])
+        
+        # Further processing here (e.g., DynamoDB queries)
+        
         return {
-            "statusCode": 500,
-            "body": json.dumps({"message": "Internal Server Error"})
+            "statusCode": 200,
+            "body": json.dumps({
+                "message": "Successfully retrieved item",
+                "ID": item_id,
+                # Add more response data as needed
+            })
         }
     except Exception as e:
-        print(f"Unhandled exception: {str(e)}")
+        print(e)
         return {
             "statusCode": 500,
             "body": json.dumps({"message": "Internal Server Error"})
