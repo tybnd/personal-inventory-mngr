@@ -10,7 +10,18 @@ Globals:
       LogFormat: JSON
 
 Resources:
-  ServerlessRestApi:
+
+  PersonalInventoryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: tbndr-personal-inven-bucket1232
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        IgnorePublicAcls: false
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+
+  PersonalInventoryApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: PersonalInventoryAPI
@@ -42,7 +53,7 @@ Resources:
                       type: string
                     Access-Control-Allow-Headers:
                       type: string
-                    Content-Type:
+                    Access-Control-Allow-Methods:
                       type: string
 
           /put:
@@ -67,10 +78,41 @@ Resources:
                       type: string
                     Access-Control-Allow-Headers:
                       type: string
-                    Content-Type:
+                    Access-Control-Allow-Methods:
                       type: string
 
-
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: "index.html"
+        Origins:
+          - DomainName: "tbndr-personal-inven-bucket1232.s3-website.us-east-1.amazonaws.com"
+            Id: S3Origin
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - POST
+            - PUT
+            - DELETE
+            - PATCH
+          CachedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        PriceClass: PriceClass_100
 
   GetFunction:
     Type: AWS::Serverless::Function
@@ -96,6 +138,20 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDBTable
 
+  GetFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt GetFunction.Arn
+      Principal: apigateway.amazonaws.com
+
+  PutFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt PutFunction.Arn
+      Principal: apigateway.amazonaws.com
+
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -107,4 +163,3 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "ID"
           AttributeType: "S"
-
