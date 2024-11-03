@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">  
+  <title>Personal Inventory Manager</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    #inventory-list {
+      max-width: 500px;
+      width: 100%;
+      margin: 10px;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    .inventory-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .inventory-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Personal Inventory Manager</h1>
+  <div id="inventory-list">
+    <!-- Inventory items will be displayed here -->
+  </div>
+
+  <script>
+    async function fetchInventory() {
+      try {
+        const response = await fetch('https://mhc2vkfs17.execute-api.us-east-1.amazonaws.com/Prod/get?ID=all');
+        const data = await response.json();
+        
+        const inventoryList = document.getElementById('inventory-list');
+        inventoryList.innerHTML = ''; // Clear any existing content
+
+        data.items.forEach(item => {
+          const itemElement = document.createElement('div');
+          itemElement.className = 'inventory-item';
+          itemElement.innerHTML = `<span>${item.ID}</span><span>${item.Quantity}</span>`;
+          inventoryList.appendChild(itemElement);
+        });
+      } catch (error) {
+        console.error('Error fetching inventory:', error);
+      }
+    }
+
+    // Load the inventory list on page load
+    window.onload = fetchInventory;
+  </script>
+</body>
+</html>

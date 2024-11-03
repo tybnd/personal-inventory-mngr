@@ -19,7 +19,7 @@ Resources:
         BlockPublicAcls: false
         IgnorePublicAcls: false
         BlockPublicPolicy: false
-        RestrictPublicBuckets: false
+        RestrictPublicBuckets: false 
 
   PersonalInventoryApi:
     Type: AWS::Serverless::Api
@@ -33,21 +33,33 @@ Resources:
         paths:
           /get:
             get:
+              parameters:
+                - name: ID
+                  in: query
+                  required: true
+                  type: string
               x-amazon-apigateway-integration:
                 type: aws_proxy
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFunction.Arn}/invocations"
-                httpMethod: GET
-                passthroughBehavior: WHEN_NO_MATCH
-                responses:
-                  default:
-                    statusCode: "200"
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
-                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+                httpMethod: POST
+                requestParameters:
+                  integration.request.querystring.ID: method.request.querystring.ID
+              responses:
+                default:
+                  statusCode: "200"
+                  responseParameters:
+                    method.response.header.Access-Control-Allow-Origin: "'*'"
+                    method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                    method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+            options:
+              summary: "CORS support"
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
               responses:
                 "200":
-                  description: "200 response"
+                  description: "200 response for CORS preflight"
                   headers:
                     Access-Control-Allow-Origin:
                       type: string
@@ -58,21 +70,33 @@ Resources:
 
           /put:
             put:
+              parameters:
+                - name: ID
+                  in: query
+                  required: true
+                  type: string
               x-amazon-apigateway-integration:
                 type: aws_proxy
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutFunction.Arn}/invocations"
                 httpMethod: PUT
-                passthroughBehavior: WHEN_NO_MATCH
-                responses:
-                  default:
-                    statusCode: "200"
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
-                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+                requestParameters:
+                  integration.request.querystring.ID: method.request.querystring.ID
+              responses:
+                default:
+                  statusCode: "200"
+                  responseParameters:
+                    method.response.header.Access-Control-Allow-Origin: "'*'"
+                    method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                    method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+            options:
+              summary: "CORS support"
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
               responses:
                 "200":
-                  description: "200 response"
+                  description: "200 response for CORS preflight"
                   headers:
                     Access-Control-Allow-Origin:
                       type: string

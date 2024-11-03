@@ -13,8 +13,11 @@ class DecimalEncoder(json.JSONEncoder):
         return super(DecimalEncoder, self).default(obj)
 
 def lambda_handler(event, context):
+    # Log the entire incoming event for debugging
+    print("Received event:", json.dumps(event))
+
     try:
-        # Safely access query string parameter 'ID'
+        # Safely access the query string parameter 'ID'
         item_id = event.get('queryStringParameters', {}).get('ID')
         if not item_id:
             return {
@@ -27,7 +30,7 @@ def lambda_handler(event, context):
                 }
             }
         
-        # Example: Retrieve item from DynamoDB (GET functionality)
+        # Retrieve item from DynamoDB (GET functionality)
         response = table.get_item(Key={'ID': item_id})
         if 'Item' not in response:
             return {
