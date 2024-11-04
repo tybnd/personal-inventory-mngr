@@ -29,6 +29,7 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> $GITHUB_ENV
           echo "AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}" >> $GITHUB_ENV
           echo "AWS_REGION=${AWS_REGION}" >> $GITHUB_ENV
+          echo "AWS_DEFAULT_REGION=${AWS_REGION}" >> $GITHUB_ENV
 
       - name: Install AWS SAM CLI
         run: |
@@ -42,4 +43,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_REGION: us-east-1
-        run: sam deploy --no-confirm-changeset
+        run: |
+          sam deploy --no-confirm-changeset --region $AWS_REGION
