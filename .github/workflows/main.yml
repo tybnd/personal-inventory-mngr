@@ -1,4 +1,4 @@
-name: Deploy SAM Application
+name: Deploy with AWS SAM
 
 on:
   push:
@@ -10,43 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Check out code
         uses: actions/checkout@v2
 
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.12'
+          python-version: 3.12
+
+      - name: Configure AWS credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: "us-east-1"  # specify your region here
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> $GITHUB_ENV
+          echo "AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}" >> $GITHUB_ENV
+          echo "AWS_REGION=${AWS_REGION}" >> $GITHUB_ENV
 
       - name: Install AWS SAM CLI
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y unzip
-          # Download the SAM CLI bundle
-          curl -Lo sam-cli-linux.zip https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip
-          unzip sam-cli-linux.zip -d sam-installation
-          sudo ./sam-installation/install
+          if ! command -v sam &> /dev/null; then
+            curl -sSL https://raw.githubusercontent.com/aws/aws-sam-cli/main/packaging/samcli-brew-install | bash -s -- --update
+          fi
 
-      - name: Configure AWS Credentials
+      - name: Deploy with AWS SAM
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: us-east-1
-
-        run: |
-          # Configure AWS region if needed
-          aws configure set region us-east-1
-
-      - name: Deploy with SAM
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: us-east-1
-          
-        run: |
-          sam build
-          sam deploy --no-confirm-changeset --region us-east-1 \
-                     --stack-name personal-inventory-mngr \
-                     --capabilities CAPABILITY_IAM
+          AWS_REGION: "us-east-1"
+        run: sam deploy --no-confirm-changeset
