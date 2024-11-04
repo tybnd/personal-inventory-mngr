@@ -78,7 +78,7 @@ Resources:
               x-amazon-apigateway-integration:
                 type: aws_proxy
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutFunction.Arn}/invocations"
-                httpMethod: PUT
+                httpMethod: POST
                 requestParameters:
                   integration.request.querystring.ID: method.request.querystring.ID
               responses:
