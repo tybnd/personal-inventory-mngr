@@ -1,73 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">  
-  <title>Personal Inventory Manager</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-    }
-    h1 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-    #inventory-list {
-      max-width: 500px;
-      width: 100%;
-      margin: 10px;
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-    .inventory-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-    }
-    .inventory-item:last-child {
-      border-bottom: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Manager</title>
 </head>
 <body>
-  <h1>Personal Inventory Manager</h1>
-  <div id="inventory-list">
-    <!-- Inventory items will be displayed here -->
-  </div>
+    <h1>Personal Inventory Manager</h1>
 
-  <script>
-    async function fetchInventory() {
-      try {
-        const response = await fetch('https://mhc2vkfs17.execute-api.us-east-1.amazonaws.com/Prod/get?ID=all');
-        const data = await response.json();
-        
-        const inventoryList = document.getElementById('inventory-list');
-        inventoryList.innerHTML = ''; // Clear any existing content
+    <!-- Get item form -->
+    <h2>Get Inventory Item</h2>
+    <form id="getForm">
+        <label for="getID">Item ID:</label>
+        <input type="text" id="getID" name="getID" required>
+        <button type="button" onclick="getItem()">Get Item</button>
+    </form>
+    <div id="getResult"></div>
 
-        data.items.forEach(item => {
-          const itemElement = document.createElement('div');
-          itemElement.className = 'inventory-item';
-          itemElement.innerHTML = `<span>${item.ID}</span><span>${item.Quantity}</span>`;
-          inventoryList.appendChild(itemElement);
-        });
-      } catch (error) {
-        console.error('Error fetching inventory:', error);
+    <!-- Put item form -->
+    <h2>Update Inventory Item</h2>
+    <form id="putForm">
+        <label for="putID">Item ID:</label>
+        <input type="text" id="putID" name="putID" required>
+        <label for="putQuantity">Quantity:</label>
+        <input type="number" id="putQuantity" name="putQuantity" required>
+        <button type="button" onclick="updateItem()">Update Item</button>
+    </form>
+    <div id="putResult"></div>
+
+    <script>
+            const getApiUrl = "https://mhc2vkfs17.execute-api.us-east-1.amazonaws.com/Prod/get";
+      const putApiUrl = "https://mhc2vkfs17.execute-api.us-east-1.amazonaws.com/Prod/put";
+
+      async function getItem() {
+          const id = document.getElementById("getID").value;
+          try {
+              const response = await fetch(`${getApiUrl}?ID=${id}`);
+              const result = await response.json();
+              document.getElementById("getResult").innerText = JSON.stringify(result, null, 2);
+          } catch (error) {
+              console.error("Error fetching item:", error);
+              document.getElementById("getResult").innerText = "Error fetching item.";
+          }
       }
-    }
 
-    // Load the inventory list on page load
-    window.onload = fetchInventory;
-  </script>
+      async function updateItem() {
+          const id = document.getElementById("putID").value;
+          const quantity = parseInt(document.getElementById("putQuantity").value);
+          try {
+              const response = await fetch(putApiUrl, {
+                  method: "PUT",
+                  headers: {
+                      "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({ ID: id, quantity })
+              });
+              const result = await response.json();
+              document.getElementById("putResult").innerText = JSON.stringify(result, null, 2);
+          } catch (error) {
+              console.error("Error updating item:", error);
+              document.getElementById("putResult").innerText = "Error updating item.";
+          }
+      }
+
+    </script>
 </body>
 </html>
