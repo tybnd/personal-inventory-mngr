@@ -49,4 +49,4 @@ jobs:
       # Deploy with AWS SAM
       - name: Deploy with AWS SAM
         run: |
-          sam deploy --no-confirm-changeset --region ${{ secrets.AWS_REGION }} --no-session
+          sam deploy --no-confirm-changeset --region ${{ secrets.AWS_REGION }}
