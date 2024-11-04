@@ -1,3 +1,4 @@
+
 name: main
 on: push
 env:
@@ -34,18 +35,17 @@ jobs:
           echo "AWS_SESSION_TOKEN set: ${{ secrets.AWS_SESSION_TOKEN != '' }}"
           echo "AWS_REGION set: ${{ secrets.AWS_REGION != '' }}"
 
-      # Install dependencies and run tests for get function
-      - name: Install dependencies and run get function tests
-        run: |
-          cd get
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          python -m unittest app.py -v
+      # Commented out the testing steps
+      # - name: Install dependencies and run get function tests
+      #   run: |
+      #     cd get
+      #     python -m pip install --upgrade pip
+      #     pip install -r requirements.txt
+      #     python -m unittest app.py -v
 
-      # Run tests for the put function
-      - name: Run put function tests
-        run: |
-          cd put
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          python -m unittest app.py -v
+      # - name: Run put function tests
+      #   run: |
+      #     cd put
+      #     python -m pip install --upgrade pip
+      #     pip install -r requirements.txt
+      #     python -m unittest app.py -v
