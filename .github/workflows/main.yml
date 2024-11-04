@@ -8,8 +8,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
 
       - name: Set up Python
@@ -17,9 +18,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install AWS SAM CLI
+      - name: Install SAM CLI
         run: |
-          pip install aws-sam-cli
+          brew tap aws/tap
+          brew install aws-sam-cli
 
       - name: Configure AWS Credentials
         env:
@@ -27,12 +29,18 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_REGION: us-east-1
-          
         run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          # Configure AWS region if needed
           aws configure set region us-east-1
 
-      - name: Deploy SAM Application
+      - name: Deploy with SAM
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: us-east-1
         run: |
-          sam deploy --no-confirm-changeset --no-session
+          sam build
+          sam deploy --no-confirm-changeset --region us-east-1 \
+                     --stack-name personal-inventory-mngr \
+                     --capabilities CAPABILITY_IAM
