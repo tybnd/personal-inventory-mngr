@@ -1,15 +1,10 @@
-name: Deploy with AWS SAM
-
-on:
-  push:
-    branches:
-      - main
-
+name: main
+on: push
 env:
   PYTHON_VERSION: 3.12.5
 
 jobs:
-  deploy:
+  build-infra:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -34,19 +29,23 @@ jobs:
       # Debug Secrets
       - name: Debug Secrets
         run: |
-          echo "AWS_ACCESS_KEY_ID set: ${{ secrets.AWS_ACCESS_KEY_ID }}"
-          echo "AWS_SECRET_ACCESS_KEY set: ${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          echo "AWS_SESSION_TOKEN set: ${{ secrets.AWS_SESSION_TOKEN }}"
-          echo "AWS_REGION set: ${{ secrets.AWS_REGION }}"
+          echo "AWS_ACCESS_KEY_ID set: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}"
+          echo "AWS_SECRET_ACCESS_KEY set: ${{ secrets.AWS_SECRET_ACCESS_KEY != '' }}"
+          echo "AWS_SESSION_TOKEN set: ${{ secrets.AWS_SESSION_TOKEN != '' }}"
+          echo "AWS_REGION set: ${{ secrets.AWS_REGION != '' }}"
 
-      # Install AWS SAM CLI
-      - name: Install AWS SAM CLI
+      # Install dependencies and run tests for get-function
+      - name: Install dependencies and run get-function tests
         run: |
-          if ! command -v sam &> /dev/null; then
-            curl -sSL https://raw.githubusercontent.com/aws/aws-sam-cli/main/packaging/samcli-brew-install | bash -s -- --update
-          fi
+          cd get-function
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m unittest test_functions.py -v
 
-      # Deploy with AWS SAM
-      - name: Deploy with AWS SAM
+      # Run tests for the put-function
+      - name: Run put-function tests
         run: |
-          sam deploy --no-confirm-changeset --region ${{ secrets.AWS_REGION }}
+          cd put-function
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m unittest test_functions.py -v
