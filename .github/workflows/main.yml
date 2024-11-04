@@ -18,10 +18,14 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install SAM CLI
+      - name: Install AWS SAM CLI
         run: |
-          brew tap aws/tap
-          brew install aws-sam-cli
+          sudo apt-get update -y
+          sudo apt-get install -y unzip
+          # Download the SAM CLI bundle
+          curl -Lo sam-cli-linux.zip https://github.com/aws/aws-sam-cli/releases/latest/download/aws-sam-cli-linux-x86_64.zip
+          unzip sam-cli-linux.zip -d sam-installation
+          sudo ./sam-installation/install
 
       - name: Configure AWS Credentials
         env:
@@ -29,6 +33,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_REGION: us-east-1
+
         run: |
           # Configure AWS region if needed
           aws configure set region us-east-1
@@ -39,6 +44,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_REGION: us-east-1
+          
         run: |
           sam build
           sam deploy --no-confirm-changeset --region us-east-1 \
