@@ -38,4 +38,4 @@ jobs:
 
     - name: Deploy with SAM
       run: |
-        sam deploy --no-confirm-changeset --stack-name personal-inventory-mngr --capabilities CAPABILITY_IAM
+        aws-vault exec laptop_t --no-session sam deploy --no-confirm-changeset 
