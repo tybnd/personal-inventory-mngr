@@ -1,91 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inventory Manager</title>
-  <style>
-    table { width: 50%; margin: 20px auto; border-collapse: collapse; }
-    th, td { padding: 10px; text-align: center; border: 1px solid #ddd; }
-    button { padding: 5px 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Manager</title>
 </head>
 <body>
-  <h2 style="text-align: center;">Inventory Manager</h2>
-  <table id="inventoryTable">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Quantity</th>
-        <th>Update</th>
-      </tr>
-    </thead>
-    <tbody id="inventoryBody"></tbody>
-  </table>
+    <h1>Inventory Manager</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="inventoryBody"></tbody>
+    </table>
 
-  <script>
-    const apiUrl = "https://mhc2vkfs17.execute-api.us-east-1.amazonaws.com/Prod";
+    <script>
+        const apiUrl = "https://mhc2vkfs17.execute-api.us-east-1.amazonaws.com/Prod";
 
-    // Fetch all inventory items and populate the table
-    async function fetchInventory() {
-      try {
-        const response = await fetch(`${apiUrl}/get`);
-        if (!response.ok) throw new Error("Network response was not ok");
-        const items = await response.json();
-        populateTable(items);
-      } catch (error) {
-        console.error("Error fetching inventory:", error);
-      }
-    }
+        // Fetch all inventory items and populate the table
+        async function fetchInventory() {
+            try {
+                const response = await fetch(`${apiUrl}/get-all`);  // Updated endpoint
+                if (!response.ok) throw new Error("Network response was not ok");
+                const items = await response.json();
+                populateTable(items);
+            } catch (error) {
+                console.error("Error fetching inventory:", error);
+            }
+        }
 
-    // Populate the table with items
-    function populateTable(items) {
-      const tableBody = document.getElementById("inventoryBody");
-      tableBody.innerHTML = ""; // Clear existing rows
-      items.forEach(item => {
-        const row = document.createElement("tr");
+        // Populate the table with items
+        function populateTable(items) {
+            const tableBody = document.getElementById("inventoryBody");
+            tableBody.innerHTML = ""; // Clear existing rows
+            items.forEach(item => {
+                const row = document.createElement("tr");
 
-        const nameCell = document.createElement("td");
-        nameCell.textContent = item.ID;
-        row.appendChild(nameCell);
+                const nameCell = document.createElement("td");
+                nameCell.textContent = item.ID;
+                row.appendChild(nameCell);
 
-        const quantityCell = document.createElement("td");
-        quantityCell.innerHTML = `<input type="number" value="${item.quantity}" id="quantity-${item.ID}">`;
-        row.appendChild(quantityCell);
+                const quantityCell = document.createElement("td");
+                quantityCell.innerHTML = `<input type="number" value="${item.quantity}" id="quantity-${item.ID}">`;
+                row.appendChild(quantityCell);
 
-        const updateCell = document.createElement("td");
-        const updateButton = document.createElement("button");
-        updateButton.textContent = "Update";
-        updateButton.onclick = () => updateItem(item.ID);
-        updateCell.appendChild(updateButton);
-        row.appendChild(updateCell);
+                const updateCell = document.createElement("td");
+                const updateButton = document.createElement("button");
+                updateButton.textContent = "Update";
+                updateButton.onclick = () => updateItem(item.ID);
+                updateCell.appendChild(updateButton);
+                row.appendChild(updateCell);
 
-        tableBody.appendChild(row);
-      });
-    }
+                tableBody.appendChild(row);
+            });
+        }
 
-    // Update item quantity using the PUT API call
-    async function updateItem(id) {
-      const quantityInput = document.getElementById(`quantity-${id}`);
-      const newQuantity = quantityInput.value;
+        // Update item quantity using the PUT API call
+        async function updateItem(id) {
+            const quantityInput = document.getElementById(`quantity-${id}`);
+            const newQuantity = quantityInput.value;
 
-      try {
-        const response = await fetch(`${apiUrl}/put`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ ID: id, quantity: parseInt(newQuantity) })
-        });
-        if (!response.ok) throw new Error("Failed to update item");
-        alert(`Item ${id} updated successfully!`);
-      } catch (error) {
-        console.error("Error updating item:", error);
-      }
-    }
+            try {
+                const response = await fetch(`${apiUrl}/put`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ ID: id, quantity: parseInt(newQuantity) })
+                });
+                if (!response.ok) throw new Error("Failed to update item");
+                alert(`Item ${id} updated successfully!`);
+            } catch (error) {
+                console.error("Error updating item:", error);
+            }
+        }
 
-    // Initial fetch
-    fetchInventory();
-  </script>
+        // Initial fetch to populate the table
+        fetchInventory();
+    </script>
 </body>
 </html>

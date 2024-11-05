@@ -162,6 +162,24 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDBTable
 
+            Resources:
+  GetAllFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: get-all/app.lambda_handler
+      Runtime: python3.8  # Adjust based on your Python version
+      Role: !GetAtt InventoryManagerRole.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: personal-inventory  # Replace with your DynamoDB table name
+      Events:
+        ApiGetAllItems:
+          Type: Api
+          Properties:
+            Path: /get-all
+            Method: GET
+
+
   GetFunctionInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
