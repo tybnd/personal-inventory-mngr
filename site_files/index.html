@@ -81,29 +81,26 @@
         }
 
         // Update item quantity using the PUT API
-        async function updateItem(itemId) {
-            const quantityInput = document.getElementById(`quantity-${itemId}`);
-            const newQuantity = parseInt(quantityInput.value, 10);
+        async function fetchInventory() {
+          try {
+              const response = await fetch(`${apiBaseUrl}/get`);
+              if (!response.ok) throw new Error("Network response was not ok");
+              
+              const data = await response.json();
+              console.log("API response data:", data); // Debugging line
 
-            try {
-                const response = await fetch(`${apiBaseUrl}/put`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ID: itemId, quantity: newQuantity })
-                });
-                
-                if (response.ok) {
-                    showToast("Quantity updated successfully.");
-                    quantityInput.classList.toggle('low-stock', newQuantity < 10);
-                    quantityInput.classList.toggle('adequate-stock', newQuantity >= 10);
-                } else {
-                    showToast("Failed to update quantity.", false);
-                }
-            } catch (error) {
-                showToast("Error updating quantity.", false);
-                console.error("Error updating item:", error);
-            }
-        }
+              // Check if 'items' is an array before calling forEach
+              if (Array.isArray(data.items)) {
+                  populateTable(data.items);
+              } else {
+                  console.error("Expected data.items to be an array:", data.items);
+                  showToast("Unexpected data format from server.", false);
+              }
+          } catch (error) {
+              showToast("Failed to load inventory.", false);
+              console.error("Error fetching inventory:", error);
+          }
+      }
 
         // Initial fetch of inventory data
         fetchInventory();
