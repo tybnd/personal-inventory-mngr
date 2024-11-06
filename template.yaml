@@ -43,22 +43,25 @@ Resources:
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFunction.Arn}/invocations"
                 httpMethod: POST
                 requestParameters:
-                  integration.request.querystring.ID: method.request.querystring.ID
-              responses:
-                default:
-                  statusCode: "200"
-                  responseParameters:
-                    method.response.header.Access-Control-Allow-Origin: "'*'"
-                    method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                    method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
-              x-amazon-apigateway-integration:
+                  integration.request.querystring.ID: "method.request.querystring.ID"
+                passthroughBehavior: "when_no_match"
                 responses:
                   default:
                     statusCode: "200"
                     responseParameters:
-                      integration.response.header.Access-Control-Allow-Origin: "'*'"
-                      integration.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                      integration.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
             options:
               summary: "CORS support"
               x-amazon-apigateway-integration:
@@ -82,21 +85,24 @@ Resources:
                 type: aws
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllFunction.Arn}/invocations"
                 httpMethod: POST
-              responses:
-                default:
-                  statusCode: "200"
-                  responseParameters:
-                    method.response.header.Access-Control-Allow-Origin: "'*'"
-                    method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                    method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET'"
-              x-amazon-apigateway-integration:
+                passthroughBehavior: "when_no_match"
                 responses:
                   default:
                     statusCode: "200"
                     responseParameters:
-                      integration.response.header.Access-Control-Allow-Origin: "'*'"
-                      integration.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                      integration.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET'"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
             options:
               summary: "CORS support"
               x-amazon-apigateway-integration:
@@ -126,22 +132,25 @@ Resources:
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutFunction.Arn}/invocations"
                 httpMethod: POST
                 requestParameters:
-                  integration.request.querystring.ID: method.request.querystring.ID
-              responses:
-                default:
-                  statusCode: "200"
-                  responseParameters:
-                    method.response.header.Access-Control-Allow-Origin: "'*'"
-                    method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                    method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
-              x-amazon-apigateway-integration:
+                  integration.request.querystring.ID: "method.request.querystring.ID"
+                passthroughBehavior: "when_no_match"
                 responses:
                   default:
                     statusCode: "200"
                     responseParameters:
-                      integration.response.header.Access-Control-Allow-Origin: "'*'"
-                      integration.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                      integration.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
             options:
               summary: "CORS support"
               x-amazon-apigateway-integration:
@@ -158,6 +167,7 @@ Resources:
                       type: string
                     Access-Control-Allow-Methods:
                       type: string
+
 
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
