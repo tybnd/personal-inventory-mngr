@@ -51,6 +51,52 @@ Resources:
                     method.response.header.Access-Control-Allow-Origin: "'*'"
                     method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
                     method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      integration.response.header.Access-Control-Allow-Origin: "'*'"
+                      integration.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      integration.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+            options:
+              summary: "CORS support"
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+              responses:
+                "200":
+                  description: "200 response for CORS preflight"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+
+          /get-all:
+            get:
+              x-amazon-apigateway-integration:
+                type: aws
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllFunction.Arn}/invocations"
+                httpMethod: POST
+              responses:
+                default:
+                  statusCode: "200"
+                  responseParameters:
+                    method.response.header.Access-Control-Allow-Origin: "'*'"
+                    method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                    method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET'"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      integration.response.header.Access-Control-Allow-Origin: "'*'"
+                      integration.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      integration.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET'"
             options:
               summary: "CORS support"
               x-amazon-apigateway-integration:
@@ -88,6 +134,14 @@ Resources:
                     method.response.header.Access-Control-Allow-Origin: "'*'"
                     method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
                     method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      integration.response.header.Access-Control-Allow-Origin: "'*'"
+                      integration.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      integration.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
             options:
               summary: "CORS support"
               x-amazon-apigateway-integration:
@@ -162,23 +216,17 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDBTable
 
-            Resources:
   GetAllFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: get-all/app.lambda_handler
-      Runtime: python3.12  # Adjust based on your Python version
-      Role: !GetAtt InventoryManagerRole.Arn
-      Environment:
-        Variables:
-          TABLE_NAME: personal-inventory  # Replace with your DynamoDB table name
-      Events:
-        ApiGetAllItems:
-          Type: Api
-          Properties:
-            Path: /get-all
-            Method: GET
-
+      CodeUri: get-all/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTable
 
   GetFunctionInvokePermission:
     Type: AWS::Lambda::Permission
@@ -192,6 +240,13 @@ Resources:
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !GetAtt PutFunction.Arn
+      Principal: apigateway.amazonaws.com
+
+  GetAllFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt GetAllFunction.Arn
       Principal: apigateway.amazonaws.com
 
   DynamoDBTable:
