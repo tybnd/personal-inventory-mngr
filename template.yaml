@@ -39,7 +39,7 @@ Resources:
                   required: true
                   type: string
               x-amazon-apigateway-integration:
-                type: aws_proxy
+                type: aws
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFunction.Arn}/invocations"
                 httpMethod: POST
                 requestParameters:
@@ -76,7 +76,7 @@ Resources:
                   required: true
                   type: string
               x-amazon-apigateway-integration:
-                type: aws_proxy
+                type: aws
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutFunction.Arn}/invocations"
                 httpMethod: POST
                 requestParameters:
@@ -167,7 +167,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: get-all/app.lambda_handler
-      Runtime: python3.8  # Adjust based on your Python version
+      Runtime: python3.12  # Adjust based on your Python version
       Role: !GetAtt InventoryManagerRole.Arn
       Environment:
         Variables:
