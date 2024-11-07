@@ -173,7 +173,7 @@
       const newQuantity = quantityInput.value;
 
       try {
-        const response = await fetch(`${apiUrl}/put`, {
+        const response = await fetch(`${apiUrl}/put?ID=${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
