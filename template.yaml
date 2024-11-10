@@ -31,54 +31,7 @@ Resources:
         info:
           title: "Personal Inventory API"
         paths:
-          /get:
-            get:
-              parameters:
-                - name: ID
-                  in: query
-                  required: true
-                  type: string
-              x-amazon-apigateway-integration:
-                type: aws
-                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetFunction.Arn}/invocations"
-                httpMethod: POST
-                requestParameters:
-                  integration.request.querystring.ID: "method.request.querystring.ID"
-                passthroughBehavior: "when_no_match"
-                responses:
-                  default:
-                    statusCode: "200"
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
-                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
-              responses:
-                "200":
-                  description: "200 response"
-                  headers:
-                    Access-Control-Allow-Origin:
-                      type: string
-                    Access-Control-Allow-Headers:
-                      type: string
-                    Access-Control-Allow-Methods:
-                      type: string
-            options:
-              summary: "CORS support"
-              x-amazon-apigateway-integration:
-                type: mock
-                requestTemplates:
-                  application/json: "{\"statusCode\": 200}"
-              responses:
-                "200":
-                  description: "200 response for CORS preflight"
-                  headers:
-                    Access-Control-Allow-Origin:
-                      type: string
-                    Access-Control-Allow-Headers:
-                      type: string
-                    Access-Control-Allow-Methods:
-                      type: string
-
+        
           /get-all:
             get:
               x-amazon-apigateway-integration:
@@ -92,54 +45,6 @@ Resources:
                     responseParameters:
                       method.response.header.Access-Control-Allow-Origin: "'*'"
                       method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET'"
-              responses:
-                "200":
-                  description: "200 response"
-                  headers:
-                    Access-Control-Allow-Origin:
-                      type: string
-                    Access-Control-Allow-Headers:
-                      type: string
-                    Access-Control-Allow-Methods:
-                      type: string
-            options:
-              summary: "CORS support"
-              x-amazon-apigateway-integration:
-                type: mock
-                requestTemplates:
-                  application/json: "{\"statusCode\": 200}"
-              responses:
-                "200":
-                  description: "200 response for CORS preflight"
-                  headers:
-                    Access-Control-Allow-Origin:
-                      type: string
-                    Access-Control-Allow-Headers:
-                      type: string
-                    Access-Control-Allow-Methods:
-                      type: string
-
-          /put:
-            put:
-              parameters:
-                - name: ID
-                  in: query
-                  required: true
-                  type: string
-              x-amazon-apigateway-integration:
-                type: aws
-                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutFunction.Arn}/invocations"
-                httpMethod: POST
-                requestParameters:
-                  integration.request.querystring.ID: "method.request.querystring.ID"
-                passthroughBehavior: "when_no_match"
-                responses:
-                  default:
-                    statusCode: "200"
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
-                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
                       method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
               responses:
                 "200":
@@ -153,21 +58,119 @@ Resources:
                       type: string
             options:
               summary: "CORS support"
-              x-amazon-apigateway-integration:
-                type: mock
-                requestTemplates:
-                  application/json: "{\"statusCode\": 200}"
               responses:
-                "200":
-                  description: "200 response for CORS preflight"
+                '200':
+                  description: "CORS support"
                   headers:
                     Access-Control-Allow-Origin:
                       type: string
+                      default: "'*'"
+                    Access-Control-Allow-Methods:
+                      type: string
+                      default: "'OPTIONS,POST,GET,PUT'"
                     Access-Control-Allow-Headers:
+                      type: string
+                      default: "'Content-Type,Authorization'"
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: |
+                    {
+                      "statusCode": 200
+                    }
+                passthroughBehavior: when_no_match
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+                  
+
+          /put:
+            put:
+              summary: "Update Quantity"
+              consumes:
+                - application/json
+              produces:
+                - application/json
+              parameters:
+                - name: ID
+                  in: query
+                  required: true
+                  type: string
+                - name: Content-Type
+                  in: header
+                  required: true
+                  type: string
+              responses:
+                '200':
+                  description: "Successful response"
+                  headers:
+                    Access-Control-Allow-Origin:
                       type: string
                     Access-Control-Allow-Methods:
                       type: string
-
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                type: aws
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutFunction.Arn}/invocations"
+                httpMethod: POST
+                requestParameters:
+                  integration.request.querystring.ID: method.request.querystring.ID
+                  integration.request.header.Content-Type: 'method.request.header.Content-Type'
+                requestTemplates:
+                  application/json: |
+                    #set($inputRoot = $input.path('$'))
+                    {
+                      "ID": "$input.params('ID')",
+                      "body": $input.json('$')
+                    }
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,PUT,GET'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,Access-Control-Allow-Headers,Access-Control-Allow-Methods'"
+                    responseTemplates:
+                      application/json: |
+                        {
+                          "statusCode": 200,
+                          "body": $input.json('$.body')
+                        }
+            options:
+              summary: "CORS support"
+              responses:
+                '200':
+                  description: "CORS support"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                      default: "'*'"
+                    Access-Control-Allow-Methods:
+                      type: string
+                      default: "'OPTIONS,POST,GET,PUT'"
+                    Access-Control-Allow-Headers:
+                      type: string
+                      default: "'Content-Type,Authorization'"
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: |
+                    {
+                      "statusCode": 200
+                    }
+                passthroughBehavior: when_no_match
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
 
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -202,18 +205,6 @@ Resources:
           CloudFrontDefaultCertificate: true
         PriceClass: PriceClass_100
 
-  GetFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: get/
-      Handler: app.lambda_handler
-      Runtime: python3.12
-      Architectures:
-        - x86_64
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref DynamoDBTable
-
   PutFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -237,13 +228,6 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDBTable
-
-  GetFunctionInvokePermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !GetAtt GetFunction.Arn
-      Principal: apigateway.amazonaws.com
 
   PutFunctionInvokePermission:
     Type: AWS::Lambda::Permission
