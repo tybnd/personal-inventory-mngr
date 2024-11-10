@@ -13,31 +13,40 @@ class DecimalEncoder(json.JSONEncoder):
         return super(DecimalEncoder, self).default(obj)
 
 def lambda_handler(event, context):
-    # Parse input JSON
     try:
-        body = json.loads(event['body'])
-        item_id = body['ID']
-        quantity = body['Quantity']
-    except (KeyError, json.JSONDecodeError):
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "ID and Quantity are required"}),
-            "headers": {
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT'
+        # Use the body directly if it's already a dictionary
+        body = event.get('body', {})
+        item_id = body.get('ID')
+        quantity = body.get('Quantity')
+
+        # Log input to confirm data is being passed correctly
+        print(f"Received item ID: {item_id}, Quantity: {quantity}")
+
+        if not item_id or quantity is None:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"message": "ID and Quantity are required"}),
+                "headers": {
+                    'Access-Control-Allow-Headers': 'Content-Type',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT'
+                }
             }
-        }
-    
-    try:
-        # Add or update item in DynamoDB
-        table.put_item(
-            Item={
-                'ID': item_id,
-                'Quantity': decimal.Decimal(quantity)  # Store as Decimal
-            }
+
+        # Log before DynamoDB update
+        print("Attempting to update DynamoDB item...")
+
+        # Update the Quantity using update_item
+        response = table.update_item(
+            Key={'ID': item_id},
+            UpdateExpression="SET Quantity = :q",
+            ExpressionAttributeValues={':q': decimal.Decimal(quantity)},
+            ReturnValues="UPDATED_NEW"
         )
-        
+
+        # Log response from DynamoDB
+        print(f"DynamoDB Response: {response}")
+
         return {
             "statusCode": 200,
             "body": json.dumps({"message": "Item updated successfully"}),
