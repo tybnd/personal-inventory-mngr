@@ -35,10 +35,6 @@ jobs:
           echo "AWS_SESSION_TOKEN set: ${{ secrets.AWS_SESSION_TOKEN != '' }}"
           echo "AWS_REGION set: ${{ secrets.AWS_REGION != '' }}"
 
-      # Upload site_files folder to S3 bucket
-      - name: Upload site_files to S3
-        run: |
-          aws s3 sync ./site_files s3://tbndr-personal-inven-bucket1232 --region ${{ secrets.AWS_REGION }}
 
       # Commented out the testing steps
       # - name: Install dependencies and run get function tests
