@@ -18,4 +18,13 @@ manifest_hash = "1861be9efa0d055614dbdd09b12dd0bb"
 packagetype = "Zip"
 functions = ["GetAllFunction"]
 
+[function_build_definitions.ff53bfe9-dee4-490f-95db-c82101045eab]
+codeuri = "C:\\Users\\tytyb\\.aws\\personal-inventory-mngr\\resource-handler"
+runtime = "python3.12"
+architecture = "x86_64"
+handler = "app.lambda_handler"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["ResourceEventHandler"]
+
 [layer_build_definitions]

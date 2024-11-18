@@ -11,16 +11,7 @@ Globals:
 
 Resources:
 
-  PersonalInventoryBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: tbndr-personal-inven-bucket1232
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        IgnorePublicAcls: false
-        BlockPublicPolicy: false
-        RestrictPublicBuckets: false 
-
+  # Personal Inventory API Gateway
   PersonalInventoryApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -30,10 +21,23 @@ Resources:
         swagger: "2.0"
         info:
           title: "Personal Inventory API"
+          version: "1.0"
         paths:
-        
           /get-all:
             get:
+              summary: "Get all items from inventory"
+              produces:
+                - application/json
+              responses:
+                '200':
+                  description: "Successfully fetched all items"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
               x-amazon-apigateway-integration:
                 type: aws
                 uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllFunction.Arn}/invocations"
@@ -44,97 +48,8 @@ Resources:
                     statusCode: "200"
                     responseParameters:
                       method.response.header.Access-Control-Allow-Origin: "'*'"
-                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
-              responses:
-                "200":
-                  description: "200 response"
-                  headers:
-                    Access-Control-Allow-Origin:
-                      type: string
-                    Access-Control-Allow-Headers:
-                      type: string
-                    Access-Control-Allow-Methods:
-                      type: string
-            options:
-              summary: "CORS support"
-              responses:
-                '200':
-                  description: "CORS support"
-                  headers:
-                    Access-Control-Allow-Origin:
-                      type: string
-                      default: "'*'"
-                    Access-Control-Allow-Methods:
-                      type: string
-                      default: "'OPTIONS,POST,GET,PUT'"
-                    Access-Control-Allow-Headers:
-                      type: string
-                      default: "'Content-Type,Authorization'"
-              x-amazon-apigateway-integration:
-                type: mock
-                requestTemplates:
-                  application/json: |
-                    {
-                      "statusCode": 200
-                    }
-                passthroughBehavior: when_no_match
-                responses:
-                  default:
-                    statusCode: "200"
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
                       method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
                       method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
-                  
-
-          /put:
-            put:
-              summary: "Update Quantity"
-              consumes:
-                - application/json
-              produces:
-                - application/json
-              parameters:
-                - name: ID
-                  in: query
-                  required: true
-                  type: string
-                - name: Content-Type
-                  in: header
-                  required: true
-                  type: string
-              responses:
-                '200':
-                  description: "Successful response"
-                  headers:
-                    Access-Control-Allow-Origin:
-                      type: string
-                    Access-Control-Allow-Methods:
-                      type: string
-                    Access-Control-Allow-Headers:
-                      type: string
-              x-amazon-apigateway-integration:
-                type: aws
-                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutFunction.Arn}/invocations"
-                httpMethod: POST
-                requestParameters:
-                  integration.request.querystring.ID: method.request.querystring.ID
-                  integration.request.header.Content-Type: 'method.request.header.Content-Type'
-                requestTemplates:
-                  application/json: |
-                    #set($inputRoot = $input.path('$'))
-                    {
-                      "ID": "$input.params('ID')",
-                      "body": $input.json('$')
-                    }
-                responses:
-                  default:
-                    statusCode: "200"
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
-                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,PUT,GET'"
-                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token,Access-Control-Allow-Headers,Access-Control-Allow-Methods'"
                     responseTemplates:
                       application/json: |
                         {
@@ -163,7 +78,7 @@ Resources:
                     {
                       "statusCode": 200
                     }
-                passthroughBehavior: when_no_match
+                passthroughBehavior: when_no_templates
                 responses:
                   default:
                     statusCode: "200"
@@ -172,63 +87,107 @@ Resources:
                       method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
                       method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
 
-  CloudFrontDistribution:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        Enabled: true
-        DefaultRootObject: "index.html"
-        Origins:
-          - DomainName: "tbndr-personal-inven-bucket1232.s3-website.us-east-1.amazonaws.com"
-            Id: S3Origin
-            CustomOriginConfig:
-              OriginProtocolPolicy: http-only
-        DefaultCacheBehavior:
-          TargetOriginId: S3Origin
-          ViewerProtocolPolicy: redirect-to-https
-          AllowedMethods:
-            - GET
-            - HEAD
-            - OPTIONS
-            - POST
-            - PUT
-            - DELETE
-            - PATCH
-          CachedMethods:
-            - GET
-            - HEAD
-          ForwardedValues:
-            QueryString: false
-            Cookies:
-              Forward: none
-        ViewerCertificate:
-          CloudFrontDefaultCertificate: true
-        PriceClass: PriceClass_100
+          /put:
+            put:
+              summary: "Update item quantity"
+              consumes:
+                - application/json
+              produces:
+                - application/json
+              parameters:
+                - name: ID
+                  in: query
+                  required: true
+                  type: string
+                - name: Quantity
+                  in: query
+                  required: true
+                  type: integer
+              responses:
+                '200':
+                  description: "Successfully updated item"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                type: aws
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutFunction.Arn}/invocations"
+                httpMethod: POST
+                requestParameters:
+                  integration.request.querystring.ID: method.request.querystring.ID
+                  integration.request.querystring.Quantity: method.request.querystring.Quantity
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+                    responseTemplates:
+                      application/json: |
+                        {
+                          "statusCode": 200,
+                          "body": $input.json('$.body')
+                        }
+            options:
+              summary: "CORS support"
+              responses:
+                '200':
+                  description: "CORS support"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                      default: "'*'"
+                    Access-Control-Allow-Methods:
+                      type: string
+                      default: "'OPTIONS,POST,GET,PUT'"
+                    Access-Control-Allow-Headers:
+                      type: string
+                      default: "'Content-Type,Authorization'"
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: |
+                    {
+                      "statusCode": 200
+                    }
+                passthroughBehavior: when_no_templates
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
 
+
+  # Lambda for updating item quantities
   PutFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: put/
       Handler: app.lambda_handler
       Runtime: python3.12
-      Architectures:
-        - x86_64
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDBTable
 
+  # Lambda for getting all items
   GetAllFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: get-all/
       Handler: app.lambda_handler
       Runtime: python3.12
-      Architectures:
-        - x86_64
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDBTable
 
+  # Permissions for API Gateway to invoke Lambdas
   PutFunctionInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -243,14 +202,89 @@ Resources:
       FunctionName: !GetAtt GetAllFunction.Arn
       Principal: apigateway.amazonaws.com
 
+  # DynamoDB Table
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: 'personal-inventory'
-      BillingMode: PAY_PER_REQUEST
-      KeySchema:
-        - AttributeName: "ID"
-          KeyType: "HASH"
+      TableName: personal-inventory
       AttributeDefinitions:
-        - AttributeName: "ID"
-          AttributeType: "S"
+        - AttributeName: ID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ID
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST  # On-demand mode, no need for throughput specs
+    DeletionPolicy: Retain  # Optional, retains the table on stack deletion
+
+  # New Lambda for processing AWS resource events
+  ResourceEventHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: resource-handler/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTable
+
+  # EventBridge Rule for capturing AWS resource events
+  AWSResourceEventsRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Capture AWS resource creation and deletion events
+      EventPattern:
+        source:
+          - "aws.ec2"
+          - "aws.s3"
+          - "aws.cloudfront"
+          - "aws.dynamodb"
+        detail-type:
+          - "AWS API Call via CloudTrail"
+        detail:
+          eventName:
+            - "CreateBucket"
+            - "RunInstances"
+            - "CreateTable"
+            - "CreateDistribution"
+            - "TerminateInstances"
+            - "DeleteBucket"
+            - "DeleteTable"
+            - "DeleteDistribution"
+      Targets:
+        - Arn: !GetAtt ResourceEventHandler.Arn
+          Id: "ResourceEventHandlerTarget"
+
+  # Permission for EventBridge to invoke Lambda
+  ResourceEventHandlerPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt ResourceEventHandler.Arn
+      Principal: events.amazonaws.com
+
+    # Example for setting CloudFormation service role with permissions
+  CloudFormationServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CFNServiceRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudFormationEventBridgePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - events:DescribeRule
+                  - events:PutRule
+                  - events:DeleteRule
+                  - events:PutTargets
+                  - events:RemoveTargets
+                Resource: "*"
+
