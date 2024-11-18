@@ -35,10 +35,13 @@ jobs:
           echo "AWS_SESSION_TOKEN set: ${{ secrets.AWS_SESSION_TOKEN != '' }}"
           echo "AWS_REGION set: ${{ secrets.AWS_REGION != '' }}"
 
-      - name: create invalidation
+      - name: Create CloudFront Invalidation
         run: |
-          aws-vault exec laptop_t --no-session aws cloudfront create-invalidation --distribution-id E1PNO1STDEOO40 --paths "/*" --region us-east-1
-
+            aws-vault exec laptop_t --no-session -- aws cloudfront create-invalidation \
+              --distribution-id E1PNO1STDEOO40 \
+              --paths "/*" \
+              --region us-east-1
+        
 
 
       # Commented out the testing steps
