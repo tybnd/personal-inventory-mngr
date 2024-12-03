@@ -33,7 +33,7 @@ Resources:
                   default:
                     statusCode: "200"
                     responseParameters:
-                      method.response.header.Access-Control-Allow-Origin: "'tycloudresume.com,tycloudresume.com/cloudinv'"
+                      method.response.header.Access-Control-Allow-Origin: "'tycloudresume.com'"
                       method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
                       method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
               responses:
@@ -54,7 +54,7 @@ Resources:
                   headers:
                     Access-Control-Allow-Origin:
                       type: string
-                      default: "'tycloudresume.com,tycloudresume.com/cloudinv'"
+                      default: "'tycloudresume.com'"
                     Access-Control-Allow-Methods:
                       type: string
                       default: "'OPTIONS,POST,GET,PUT'"
@@ -73,7 +73,7 @@ Resources:
                   default:
                     statusCode: "200"
                     responseParameters:
-                      method.response.header.Access-Control-Allow-Origin: "'tycloudresume.com,tycloudresume.com/cloudinv'"
+                      method.response.header.Access-Control-Allow-Origin: "'tycloudresume.com'"
                       method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST,GET,PUT'"
                       method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
 
