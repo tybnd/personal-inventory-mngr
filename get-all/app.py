@@ -14,7 +14,15 @@ def lambda_handler(event, context):
                 "Type": "EC2 Instance",
                 "State": instance['State']['Name']
             })
-
+    vpc_response = ec2_client.describe_vpcs()
+    for vpc in vpc_response['Vpcs']:
+        resources.append({
+            "ID": vpc['VpcId'],
+            "Type": "VPC",
+            "State": vpc.get('State', 'Unknown'),
+            "CIDR": vpc.get('CidrBlock', 'Unknown'),
+            "IsDefault": vpc.get('IsDefault', False) 
+        })
     # Fetch S3 buckets
     s3_client = boto3.client('s3')
     s3_response = s3_client.list_buckets()
@@ -64,7 +72,7 @@ def lambda_handler(event, context):
             "Type": "Lambda Function",
             "State": "Available"
         })
-
+    
     # Fetch Load Balancers
     elb_client = boto3.client('elbv2')
     elb_response = elb_client.describe_load_balancers()
