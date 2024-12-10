@@ -97,6 +97,7 @@ Resources:
               - cloudfront:ListDistributions
               - lambda:ListFunctions
               - elasticloadbalancing:DescribeLoadBalancers
+              - vpc:DescribeVPCs
             Resource: "*"
       Events:
         Api:
